@@ -113,8 +113,8 @@ public class MainActivity extends AppCompatActivity {
             super.onPreExecute();
             progressDialog = new ProgressDialog(context);
             progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.setTitle("Conectando al servidors");
-            progressDialog.setMessage("Espere...");
+            progressDialog.setTitle("Conexion establecida con el servidor");
+            progressDialog.setMessage("Procesando...");
             progressDialog.show();
         }
 
