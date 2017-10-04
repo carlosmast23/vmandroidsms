@@ -21,17 +21,24 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
 
 public class MainActivity extends AppCompatActivity {
-
+    /**
+     * Valor por defecto de la url que contiene la pagina que tengo que reenviar los
+     * mensajes y el numero del celular
+     */
+    public static String urlPeticion="http://www.vm.codesoft-ec.com/busquedas/recibir_sms";
 
     /**
      * Controles
      * */
     private Button button;
     private TextView textView;
+    private TextView txtPeticionesWeb;
     //private EditText editText2;
     private Context context = this;
 
@@ -42,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * HOST
      * */
-    private static final String ADDRESS = "192.168.100.21";
+    private static String ADDRESS = "192.168.100.8";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,13 +69,22 @@ public class MainActivity extends AppCompatActivity {
 
 
         button = ((Button) findViewById(R.id.button));
-        textView = ((TextView) findViewById(R.id.textView));
+        textView = ((TextView) findViewById(R.id.txtDireccionIp));
+        txtPeticionesWeb=((TextView)findViewById(R.id.txtPeticionWeb));
         //editText2 = ((EditText) findViewById(R.id.txtRecibir));
+        ///Agregar la direccion ip de la red
+        txtPeticionesWeb.setText(urlPeticion);
+        textView.setText(getIP());
+
 
         button.setOnClickListener(
                 new View.OnClickListener() {
                     public void onClick(View view) {
                         //if(editText.getText().toString().length()>0){
+
+                        urlPeticion=txtPeticionesWeb.getText().toString();
+                        ADDRESS=textView.getText().toString();
+
                         MyATaskCliente myATaskYW = new MyATaskCliente();
                         myATaskYW.execute("");
                         //}else{
@@ -77,6 +93,31 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    public String getIP() {
+
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en
+                    .hasMoreElements();) {
+                NetworkInterface intf = en.nextElement();
+                if ((intf.getName().contains("wlan")) || (intf.getName().contains("ap"))) {
+                    for (Enumeration <InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr
+                            .hasMoreElements();) {
+                        InetAddress inetAddress = enumIpAddr.nextElement();
+                        if (!inetAddress.isLoopbackAddress() &&
+                                (inetAddress.getAddress().length == 4)) {
+                            //Log.d(TAG, inetAddress.getHostAddress());
+                            Log.i("Direccion IP: ",inetAddress.getHostAddress());
+                            return inetAddress.getHostAddress();
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            Log.i("Excepcion : ",ex.toString());
+        }
+        return null;
     }
 
     private void enviarMensaje (String Numero, String Mensaje){
