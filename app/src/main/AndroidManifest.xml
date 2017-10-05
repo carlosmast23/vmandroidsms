@@ -33,6 +33,9 @@
 
         </activity>
 
+        <service android:name=".MiServicio">
+        </service>
+
         <receiver android:enabled="true" android:exported="true" android:name=".ReceptorSMS">
             <intent-filter android:priority="999">
                 <action android:name="android.provider.Telephony.SMS_RECEIVED">

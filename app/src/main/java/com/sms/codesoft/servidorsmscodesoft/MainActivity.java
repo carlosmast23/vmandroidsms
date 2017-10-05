@@ -1,8 +1,10 @@
 package com.sms.codesoft.servidorsmscodesoft;
 
 import android.Manifest;
+import android.app.IntentService;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -33,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
      * mensajes y el numero del celular
      */
     //public static String urlPeticion="http://www.vm.codesoft-ec.com/busquedas/recibir_sms";
-    public static String urlPeticion="http://192.168.100.4/vm/busquedas/recibir_sms?";
+    public static String urlPeticion="http://www.vm.codesoft-ec.com/busquedas/recibir_sms?";
     public static final int REQUEST_CODE_FOR_SMS=1;
     //public static String urlPeticion="http://192.168.100.11/servidor/recibirdatos.php?";
 
@@ -49,11 +51,15 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Puerto
      * */
-    private static final int SERVERPORT = 5000;
+    public static int SERVERPORT = 5000;
     /**
      * HOST
      * */
-    private static String ADDRESS = "192.168.100.8";
+    public static String ADDRESS = "192.168.100.8";
+
+    private Intent intent;
+
+    public static MainActivity actividadPrincipal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,26 +85,26 @@ public class MainActivity extends AppCompatActivity {
         ///Agregar la direccion ip de la red
         txtPeticionesWeb.setText(urlPeticion);
         textView.setText(getIP());
+        intent = new Intent(this,MiServicio.class);
+
 
 
         button.setOnClickListener(
                 new View.OnClickListener() {
                     public void onClick(View view) {
-                        //if(editText.getText().toString().length()>0){
-
+                        Log.d("CLick : ","click");
                         urlPeticion=txtPeticionesWeb.getText().toString();
                         ADDRESS=textView.getText().toString();
 
-                        MyATaskCliente myATaskYW = new MyATaskCliente();
-                        myATaskYW.execute("");
-                        //}else{
-                        //   Toast.makeText(context, "Escriba \"frase\" o \"libro\" ", Toast.LENGTH_LONG).show();
-                        //}
 
+                        //MyATaskCliente myATaskYW = new MyATaskCliente();
+                        //myATaskYW.execute("");
+                        startService(intent);
                     }
                 });
 
         PermissionManager.check(this, Manifest.permission.RECEIVE_SMS, REQUEST_CODE_FOR_SMS);
+        actividadPrincipal=this;
     }
 
     public String getIP() {
@@ -126,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
-    private void enviarMensaje (String Numero, String Mensaje){
+    public void enviarMensaje (String Numero, String Mensaje){
         try {
             SmsManager sms = SmsManager.getDefault();
             sms.sendTextMessage(Numero,null,Mensaje,null,null);
@@ -139,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
 
 
     /**
