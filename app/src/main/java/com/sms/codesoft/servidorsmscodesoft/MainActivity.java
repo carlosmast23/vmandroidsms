@@ -1,5 +1,6 @@
 package com.sms.codesoft.servidorsmscodesoft;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -31,7 +32,10 @@ public class MainActivity extends AppCompatActivity {
      * Valor por defecto de la url que contiene la pagina que tengo que reenviar los
      * mensajes y el numero del celular
      */
-    public static String urlPeticion="http://www.vm.codesoft-ec.com/busquedas/recibir_sms";
+    //public static String urlPeticion="http://www.vm.codesoft-ec.com/busquedas/recibir_sms";
+    public static String urlPeticion="http://192.168.100.4/vm/busquedas/recibir_sms?";
+    public static final int REQUEST_CODE_FOR_SMS=1;
+    //public static String urlPeticion="http://192.168.100.11/servidor/recibirdatos.php?";
 
     /**
      * Controles
@@ -93,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
+
+        PermissionManager.check(this, Manifest.permission.RECEIVE_SMS, REQUEST_CODE_FOR_SMS);
     }
 
     public String getIP() {

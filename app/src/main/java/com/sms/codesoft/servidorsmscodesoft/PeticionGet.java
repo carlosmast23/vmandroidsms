@@ -18,7 +18,7 @@ import java.net.URLEncoder;
 
 public class PeticionGet extends AsyncTask<String,String,String>
 {
-    //final String pagina="http://192.168.1.3/servidor/recibirdatos.php?";
+    //final String pagina="http://192.168.100.4/vm/busquedas/recibir_sms?";
     //final String pagina="http://www.vm.codesoft-ec.com/registro.php";
 
     String numero;
@@ -36,6 +36,7 @@ public class PeticionGet extends AsyncTask<String,String,String>
             //S0tring urlText="http://192.168.1.2/servidor/recibirdatos.php?"+parametros;
             String data = "numero=" + URLEncoder.encode(numero,"UTF-8")+"&mensaje="+URLEncoder.encode(mensaje,"UTF-8");
             URL url=new URL(MainActivity.urlPeticion+data);
+            //URL url=new URL(pagina+data);
             Log.i("Enviando sitio web", "open stream php...");
             url.openStream();
             //String data = "numero=" + URLEncoder.encode(numero,"UTF-8")+"&mensaje="+URLEncoder.encode(mensaje,"UTF-8");
