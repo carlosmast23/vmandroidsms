@@ -2,7 +2,10 @@ package com.sms.codesoft.servidorsmscodesoft;
 
 import android.app.IntentService;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -21,6 +24,7 @@ import java.net.UnknownHostException;
 
 public class MiServicio extends IntentService {
 
+    ProgressDialog progressDialog;
 
     private void enviarMensaje (String Numero, String Mensaje){
         try {
@@ -93,5 +97,37 @@ public class MiServicio extends IntentService {
         } catch (IOException ex) {
             Log.e("E/TCP Client", "" + ex.getMessage());
         }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
+    @Override
+    public void onStart(@Nullable Intent intent, int startId) {
+        super.onStart(intent, startId);
+        progressDialog = new ProgressDialog(MainActivity.actividadPrincipal);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setTitle("Conexion establecida con el servidor");
+        progressDialog.setMessage("Procesando...");
+        progressDialog.show();
+    }
+
+    @Override
+    public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        progressDialog.dismiss();
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return super.onBind(intent);
     }
 }
