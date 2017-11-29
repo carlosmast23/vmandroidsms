@@ -17,12 +17,17 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * Created by Carlos on 05/10/2017.
  */
 
 public class MiServicio extends IntentService {
+
+    public static final String NOMBRE_MENSAJE =
+            "vmandroidsms.smsbroadcast";
 
     ProgressDialog progressDialog;
 
@@ -53,11 +58,15 @@ public class MiServicio extends IntentService {
     protected void onHandleIntent(Intent intencion) {
         Log.i("Intente Service: ","---->");
         try {
+            String address=intencion.getStringExtra("address");
+            int serverPort=intencion.getIntExtra("puerto",0);
             //Se conecta al servidor
-            InetAddress serverAddr = InetAddress.getByName(MainActivity.ADDRESS);
-            Log.i("I/TCP Client", "Conectando...");
-            Socket socket = new Socket(serverAddr, MainActivity.SERVERPORT);
+            InetAddress serverAddr = InetAddress.getByName(address);
+            Log.i("I/TCP Client", "Conectando con "+address+":"+serverPort+" ...");
+            mensajeBroadcast("Conectando con "+address+":"+serverPort+" ...");
+            Socket socket = new Socket(serverAddr,serverPort);
             Log.i("I/TCP Client", "Conectado con el Servidor");
+            mensajeBroadcast("Conectado exitosamente ...");
 
             //Se queda en bucle infinito hasta enviar los mensajes
 
@@ -86,7 +95,9 @@ public class MiServicio extends IntentService {
                 //String mensajeTxt = new String(lenBytes, "UTF-8").trim();
                 String mensajeTxt =entrada.readLine();
                 Log.i("I/TCP Client", "MensajeRecibido: " + mensajeTxt);
+                mensajeBroadcast("enviando mensaje a "+numeroStr+ ": "+mensajeTxt);
                 MainActivity.actividadPrincipal.enviarMensaje(numeroStr,mensajeTxt);
+                mensajeBroadcast("mensaje enviado ...");
                 //publishProgress(numeroStr,mensajeTxt);
 
             }
@@ -94,9 +105,37 @@ public class MiServicio extends IntentService {
             socket.close();
         }catch (UnknownHostException ex) {
             Log.e("E/TCP Client", "" + ex.getMessage());
+            mensajeBroadcast(ex.getMessage());
+
         } catch (IOException ex) {
             Log.e("E/TCP Client", "" + ex.getMessage());
+            mensajeBroadcast(ex.getMessage());
         }
+    }
+
+    /**
+     * Metodo que me permite enviar un mensaje al hilo principal
+     */
+    private void mensajeBroadcast (String log)
+    {
+        //Agregando la fecha de la aplicacion ///
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(Calendar.HOUR, 17);
+        calendar.set(Calendar.MINUTE, 30);
+        calendar.set(Calendar.SECOND, 2);
+        System.out.println(simpleDateFormat.format(calendar.getTime()));
+        log="I:["+simpleDateFormat.format(calendar.getTime())+" "+log+"]";
+
+
+        Intent bcIntent = new Intent();
+        bcIntent.setAction(NOMBRE_MENSAJE);
+        bcIntent.putExtra("log",log);
+        sendBroadcast(bcIntent);
+
+
+
     }
 
     @Override
@@ -107,11 +146,12 @@ public class MiServicio extends IntentService {
     @Override
     public void onStart(@Nullable Intent intent, int startId) {
         super.onStart(intent, startId);
-        progressDialog = new ProgressDialog(MainActivity.actividadPrincipal);
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.setTitle("Conexion establecida con el servidor");
-        progressDialog.setMessage("Procesando...");
-        progressDialog.show();
+        //progressDialog = new ProgressDialog(MainActivity.actividadPrincipal);
+        //progressDialog.setCanceledOnTouchOutside(false);
+        //progressDialog.setTitle("Conexion establecida con el servidor");
+        //progressDialog.setMessage("Procesando...");
+        //progressDialog.show();
+        mensajeBroadcast("intentado conectar con el servidor ...");
     }
 
     @Override
@@ -122,7 +162,8 @@ public class MiServicio extends IntentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        progressDialog.dismiss();
+        mensajeBroadcast("proceso conexion terminado ");
+        //progressDialog.dismiss();
     }
 
     @Nullable

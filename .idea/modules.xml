@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ServidorSMSCodesoft.iml" filepath="$PROJECT_DIR$/ServidorSMSCodesoft.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/vmandroidsms.iml" filepath="$PROJECT_DIR$/vmandroidsms.iml" />
     </modules>
   </component>
 </project>

@@ -3,8 +3,10 @@ package com.sms.codesoft.servidorsmscodesoft;
 import android.Manifest;
 import android.app.IntentService;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -35,7 +37,8 @@ public class MainActivity extends AppCompatActivity {
      * mensajes y el numero del celular
      */
     //public static String urlPeticion="http://www.vm.codesoft-ec.com/busquedas/recibir_sms";
-    public static String urlPeticion="http://www.vm.codesoft-ec.com/busquedas/recibir_sms?";
+    public static String urlPeticion="http://www.vm.codesoft-ec.com/busquedas/recibir_sms?borrar";
+    public static String urlInformarBateriaBaja="http://www.vm.codesoft-ec.com/cronos/recibir_alert";
     public static final int REQUEST_CODE_FOR_SMS=1;
     //public static String urlPeticion="http://192.168.100.11/servidor/recibirdatos.php?";
 
@@ -45,8 +48,10 @@ public class MainActivity extends AppCompatActivity {
     private Button button;
     private TextView textView;
     private TextView txtPeticionesWeb;
+    private TextView  txtConsola;
     //private EditText editText2;
     private Context context = this;
+    private Button btnLimpiar;
 
     /**
      * Puerto
@@ -77,10 +82,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        initComponent();
 
-        button = ((Button) findViewById(R.id.button));
-        textView = ((TextView) findViewById(R.id.txtDireccionIp));
-        txtPeticionesWeb=((TextView)findViewById(R.id.txtPeticionWeb));
         //editText2 = ((EditText) findViewById(R.id.txtRecibir));
         ///Agregar la direccion ip de la red
         txtPeticionesWeb.setText(urlPeticion);
@@ -95,7 +98,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("CLick : ","click");
                         urlPeticion=txtPeticionesWeb.getText().toString();
                         ADDRESS=textView.getText().toString();
-
+                        intent.putExtra("address", ADDRESS);
+                        intent.putExtra("puerto", SERVERPORT);
 
                         //MyATaskCliente myATaskYW = new MyATaskCliente();
                         //myATaskYW.execute("");
@@ -103,8 +107,38 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        btnLimpiar.setOnClickListener(
+                new View.OnClickListener() {
+                    public void onClick(View view) {
+                        Log.d("Accion : ","limpiar");
+                        txtConsola.setText("");
+                    }
+                });
+
         PermissionManager.check(this, Manifest.permission.RECEIVE_SMS, REQUEST_CODE_FOR_SMS);
         actividadPrincipal=this;
+        receptorMensajeIntent();
+    }
+
+    private void receptorMensajeIntent()
+    {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(MiServicio.NOMBRE_MENSAJE);
+        //filter.addAction(MiIntentService.ACTION_FIN);
+        ProgressReceiver rcv = new ProgressReceiver();
+        registerReceiver(rcv, filter);
+    }
+
+    /**
+     * Inicializar los componentes de la vista
+     */
+    private void initComponent()
+    {
+        txtConsola=(TextView)findViewById(R.id.multilineConsole);
+        button = ((Button) findViewById(R.id.button));
+        textView = ((TextView) findViewById(R.id.txtDireccionIp));
+        txtPeticionesWeb=((TextView)findViewById(R.id.txtPeticionWeb));
+        btnLimpiar=((Button) findViewById(R.id.btnLimpiar));
     }
 
     public String getIP() {
@@ -147,6 +181,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public TextView getTxtConsola() {
+        return txtConsola;
+    }
+
+    public void setTxtConsola(TextView txtConsola) {
+        this.txtConsola = txtConsola;
+    }
+
+    public class ProgressReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(MiServicio.NOMBRE_MENSAJE)) {
+                String log = intent.getStringExtra("log");
+
+                txtConsola.setText(log+"\n"+txtConsola.getText());
+
+                /**
+                 * Eliminar los logs cuando el tamaño es demasiado grande para no tener problemas
+                 * de rendimiento con el celular
+                 */
+                if(txtConsola.getText().length()>=10000)
+                {
+                    txtConsola.setText(txtConsola.getText().toString().substring(0,10000));
+                }
+
+
+                //txtConsola.append(System.getProperty("line.separator"));
+                ///txtConsola.append(log);
+            }
+
+        }
+    }
 
     /**
      * Clase para interactuar con el servidor
