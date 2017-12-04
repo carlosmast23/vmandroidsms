@@ -168,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void enviarMensaje (String Numero, String Mensaje){
         try {
+            Thread.sleep(500);
             SmsManager sms = SmsManager.getDefault();
             sms.sendTextMessage(Numero,null,Mensaje,null,null);
             Toast.makeText(getApplicationContext(), "Mensaje Enviado.", Toast.LENGTH_LONG).show();
